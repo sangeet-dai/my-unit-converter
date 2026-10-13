@@ -1,0 +1,86 @@
+@model ContactFormViewModel
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo; <span class="text-white">Contact</span>
+        </nav>
+        <h1 class="fw-bold">Contact us</h1>
+        <p class="mb-0" style="color: rgba(255,255,255,.82);">Questions, feedback or resource suggestions? We would love to hear from you.</p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="lh-form-card">
+                    <h2 class="h4 mb-4">Send a message</h2>
+
+                    @* SERVER-SIDE + CLIENT-SIDE VALIDATION DEMO *@
+                    <form asp-controller="Home" asp-action="Contact" method="post" id="contactForm" novalidate>
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-3"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="lh-form-label">Name <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control lh-form-control" placeholder="Your full name"
+                                       minlength="2" maxlength="80" required />
+                                <span asp-validation-for="Name"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="lh-form-label">Email <span class="text-danger">*</span></label>
+                                <input asp-for="Email" class="form-control lh-form-control" type="email"
+                                       placeholder="you@example.com" required />
+                                <span asp-validation-for="Email"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Subject" class="lh-form-label">Subject <span class="text-danger">*</span></label>
+                                <input asp-for="Subject" class="form-control lh-form-control"
+                                       placeholder="What is this about?" minlength="3" maxlength="140" required />
+                                <span asp-validation-for="Subject"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Message" class="lh-form-label">Message <span class="text-danger">*</span></label>
+                                <textarea asp-for="Message" class="form-control lh-form-control" rows="5"
+                                          placeholder="Write your message here…" minlength="10" maxlength="2000" required></textarea>
+                                <span asp-validation-for="Message"></span>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-lh-primary px-4">
+                                    <i class="ti ti-send me-1"></i>Send message
+                                </button>
+                                <small class="text-muted ms-2">All fields are required.</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="lh-detail-panel mb-4">
+                    <h2 class="h5">Other ways to reach us</h2>
+                    <ul class="list-unstyled mb-0 mt-3">
+                        <li class="lh-meta-item mb-3"><i class="ti ti-mail-filled"></i> support@@learnhub.test</li>
+                        <li class="lh-meta-item mb-3"><i class="ti ti-phone"></i> +60 3-1234 5678</li>
+                        <li class="lh-meta-item mb-3"><i class="ti ti-map-pin"></i> Level 3, Computing School, APU</li>
+                        <li class="lh-meta-item"><i class="ti ti-clock-filled"></i> Mon–Fri, 9:00 am – 6:00 pm (MYT)</li>
+                    </ul>
+                </div>
+
+                @* Inline style example on the office-hours card *@
+                <div class="lh-detail-panel" style="background: linear-gradient(135deg, #eef2ff, #f5f3ff); border: none;">
+                    <h2 class="h5">Office hours</h2>
+                    <p class="text-muted mb-2">Our support team replies within one working day.</p>
+                    <p class="mb-0"><strong>Monday – Friday:</strong> 9:00 – 18:00<br />
+                       <strong>Saturday:</strong> 10:00 – 14:00<br />
+                       <strong>Sunday:</strong> Closed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

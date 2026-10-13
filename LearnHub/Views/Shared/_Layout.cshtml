@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="LearnHub - the digital learning resource library: videos, articles, virtual labs, simulations and self-assessment quizzes for computing students." />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " | LearnHub" : "LearnHub | Digital Learning Resource Library")</title>
+    <link rel="icon" href="~/images/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/tabler-icons/tabler-icons.min.css" />
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="lh-topbar d-none d-sm-block">
+        <div class="container d-flex justify-content-between">
+            <span>Digital learning resource library</span>
+            <span>support@@learnhub.test</span>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg lh-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                <img src="~/images/logo.svg" alt="" class="lh-logo" width="26" height="26" />
+                <span>LearnHub</span>
+            </a>
+            <span class="lh-brand-sub d-none d-xl-inline">Resource library</span>
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                    aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                           asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resources" ? "active" : "")"
+                           asp-controller="Resources" asp-action="Index">Catalogue</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "About" ? "active" : "")"
+                           asp-controller="Home" asp-action="About">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Contact" ? "active" : "")"
+                           asp-controller="Home" asp-action="Contact">Contact</a>
+                    </li>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item dropdown ms-lg-3">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @User.Identity.Name
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Member" asp-action="Dashboard">My learning</a></li>
+                                <li><a class="dropdown-item" asp-controller="Member" asp-action="Profile">Profile</a></li>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Administration</a></li>
+                                }
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item">Sign out</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item ms-lg-3">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">Sign in</a>
+                        </li>
+                        <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                            <a class="btn btn-lh-accent btn-sm" asp-controller="Account" asp-action="Register">Create account</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="container mt-3">
+            <div class="alert alert-success alert-dismissible fade show lh-alert" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="container mt-3">
+            <div class="alert alert-danger alert-dismissible fade show lh-alert" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="lh-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-12 col-lg-5">
+                    <h2 class="lh-footer-title d-flex align-items-center gap-2">
+                        <img src="~/images/logo.svg" alt="" class="lh-footer-logo" width="22" height="22" />
+                        <span>LearnHub</span>
+                    </h2>
+                    <p class="lh-footer-text mb-0">
+                        A library of digital learning resources for computing students: recorded lectures,
+                        written guides, virtual labs, simulations and self-assessment quizzes, each with an
+                        outline of what you should be able to do afterwards.
+                    </p>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h2 class="lh-footer-title">Library</h2>
+                    <ul class="list-unstyled lh-footer-links">
+                        <li><a asp-controller="Resources" asp-action="Index">Catalogue</a></li>
+                        <li><a asp-controller="Home" asp-action="About">About</a></li>
+                        <li><a asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h2 class="lh-footer-title">Account</h2>
+                    <ul class="list-unstyled lh-footer-links">
+                        <li><a asp-controller="Account" asp-action="Login">Sign in</a></li>
+                        <li><a asp-controller="Account" asp-action="Register">Register</a></li>
+                        <li><a asp-controller="Member" asp-action="Dashboard">My learning</a></li>
+                    </ul>
+                </div>
+                <div class="col-12 col-lg-3">
+                    <h2 class="lh-footer-title">Contact</h2>
+                    <ul class="list-unstyled lh-footer-text mb-0">
+                        <li class="mb-1">School of Computing, Level 3</li>
+                        <li class="mb-1">support@@learnhub.test</li>
+                        <li>+60 3-1234 5678</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="lh-footer-divider" />
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <p class="lh-footer-text mb-0">&copy; @DateTime.Now.Year LearnHub. Built for CT050-3-2 Web Applications.</p>
+                <div>
+                    <a href="#" class="lh-social" aria-label="Facebook"><i class="ti ti-brand-facebook"></i></a>
+                    <a href="#" class="lh-social" aria-label="X"><i class="ti ti-brand-x"></i></a>
+                    <a href="#" class="lh-social" aria-label="YouTube"><i class="ti ti-brand-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

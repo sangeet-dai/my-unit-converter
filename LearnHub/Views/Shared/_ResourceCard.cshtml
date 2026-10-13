@@ -1,0 +1,60 @@
+@model LearnHub.Models.LearningResource
+@{ 
+    var levelClass = Model.Level switch
+    {
+        "Beginner" => "lh-badge-level-beginner",
+        "Intermediate" => "lh-badge-level-intermediate",
+        _ => "lh-badge-level-advanced"
+    };
+    var duration = Model.DurationMinutes >= 60
+        ? $"{Model.DurationMinutes / 60} hr {Model.DurationMinutes % 60} min"
+        : $"{Model.DurationMinutes} min";
+}
+<article class="lh-card">
+    <div class="lh-card-thumb">
+        @{ var categoryLogo = !string.IsNullOrEmpty(Model.CategoryLogoUrl) ? Model.CategoryLogoUrl : Model.Category?.LogoUrl; }
+    @if (!string.IsNullOrEmpty(categoryLogo))
+        {
+            <img src="@categoryLogo" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy" />
+        }
+        else if (!string.IsNullOrEmpty(Model.PictureUrl))
+        {
+            <img src="@Model.PictureUrl" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy" />
+        }
+        else if (!string.IsNullOrEmpty(Model.ThumbnailUrl))
+        {
+            <img src="@Model.ThumbnailUrl" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy" />
+        }
+        else
+        {
+            <i class="ti ti-notebook" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-3);" aria-hidden="true"></i>
+        }
+    </div>
+    <div class="lh-card-body">
+        <div class="d-flex flex-wrap gap-2 mb-2">
+            <span class="lh-badge lh-badge-type">@Model.ResourceType</span>
+            <span class="lh-badge @levelClass">@Model.Level</span>
+        </div>
+        <h3 class="lh-card-title">
+            <a asp-controller="Resources" asp-action="Details" asp-route-id="@Model.Id">@Model.Title</a>
+        </h3>
+        <p class="lh-card-text">@Model.Summary</p>
+        <div class="lh-card-foot">
+            <span class="d-inline-flex align-items-center gap-1">@if(!string.IsNullOrEmpty(categoryLogo)){<img src="@categoryLogo" alt="" style="width:16px;height:16px;object-fit:cover;border-radius:50%;" loading="lazy" />} @Model.Category?.Name</span>
+            <span class="lh-sep">·</span>
+            <span>@duration</span>
+            @if (Model.Reviews.Any())
+            {
+                <span class="lh-sep">·</span>
+                <span class="lh-stars" aria-label="Rated @(Model.AverageRating) out of 5">
+                    <i class="ti ti-star-filled"></i> @Model.AverageRating.ToString("0.0")
+                </span>
+            }
+            @if (Model.IsFeatured)
+            {
+                <span class="lh-sep">·</span>
+                <span>Staff pick</span>
+            }
+        </div>
+    </div>
+</article>

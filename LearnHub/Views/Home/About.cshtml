@@ -1,0 +1,82 @@
+@{
+    ViewData["Title"] = "About";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo; <span class="text-white">About</span>
+        </nav>
+        <h1 class="fw-bold">About LearnHub</h1>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-7">
+                <span class="lh-kicker">Our story</span>
+                <h2 class="lh-section-title">A platform built for modern learners</h2>
+                <p>
+                    LearnHub is a <strong>web-based learning system</strong> designed for students, educators and
+                    lifelong learners. It serves as a single platform for both registered and non-registered users
+                    who are looking for digital learning resources — web applications and media that engage learners
+                    in meaningful activities and support their learning goals.
+                </p>
+                <p>
+                    Online learning activities on the platform include synchronous and asynchronous online
+                    discussions, online self-assessments, virtual labs, simulations, problem-solving tasks and
+                    interactive learning objects. Every resource is categorised by subject, type and difficulty
+                    level so learners can find exactly what they need in seconds.
+                </p>
+
+                <h3 class="h4 mt-4">Mission statement</h3>
+                <blockquote class="lh-quote" style="border-left-color: var(--lh-primary);">
+                    <p class="mb-0 fst-italic">
+                        "To empower every learner with free, well-organised and engaging digital resources —
+                        accessible anytime, on any device — so that knowledge is never more than a click away."
+                    </p>
+                </blockquote>
+
+                <h3 class="h4 mt-4">Objectives</h3>
+                <ol class="lh-objectives">
+                    <li>Provide a central catalogue of quality-assured digital learning resources.</li>
+                    <li>Let learners enrol, track progress and review the resources they have studied.</li>
+                    <li>Give administrators full control over website content and database records.</li>
+                    <li>Deliver a responsive, accessible experience on desktop, tablet and mobile.</li>
+                    <li>Apply current web standards — HTML5 semantics, modern CSS and server-side scripting.</li>
+                </ol>
+            </div>
+
+            <aside class="col-lg-5">
+                <div class="lh-detail-panel mb-4">
+                    <h3 class="h5">At a glance</h3>
+                    <ul class="list-unstyled mb-0">
+                        <li class="lh-meta-item mb-3"><i class="ti ti-code"></i> Built with ASP.NET Core MVC (server-side)</li>
+                        <li class="lh-meta-item mb-3"><i class="ti ti-database"></i> Entity Framework Core + SQLite database</li>
+                        <li class="lh-meta-item mb-3"><i class="ti ti-shield-lock"></i> Cookie authentication with roles</li>
+                        <li class="lh-meta-item mb-3"><i class="ti ti-device-mobile"></i> Fully responsive, mobile-first design</li>
+                        <li class="lh-meta-item"><i class="ti ti-accessible"></i> Semantic HTML5 &amp; accessible markup</li>
+                    </ul>
+                </div>
+
+                <div class="lh-detail-panel">
+                    <h3 class="h5">Audience</h3>
+                    <div class="lh-meta-item mb-3"><i class="ti ti-user"></i> <span><strong>Students</strong><br /><small class="text-muted">Find study resources and track progress</small></span></div>
+                    <div class="lh-meta-item mb-3"><i class="ti ti-user-cog"></i> <span><strong>Educators</strong><br /><small class="text-muted">Publish and curate course materials</small></span></div>
+                    <div class="lh-meta-item mb-3"><i class="ti ti-world"></i> <span><strong>Public visitors</strong><br /><small class="text-muted">Browse the catalogue and register</small></span></div>
+                    <div class="lh-meta-item"><i class="ti ti-shield-lock"></i> <span><strong>Administrators</strong><br /><small class="text-muted">Manage content, members &amp; messages</small></span></div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<section class="lh-section lh-section-alt">
+    <div class="container text-center">
+        <h2 class="lh-section-title">Ready to explore?</h2>
+        <p class="lh-section-sub mx-auto mb-4">Browse the catalogue as a guest, or create a free account to enrol and track progress.</p>
+        <a asp-controller="Resources" asp-action="Index" class="btn btn-lh-primary me-2">Browse resources</a>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-lh-accent">Create an account</a>
+    </div>
+</section>

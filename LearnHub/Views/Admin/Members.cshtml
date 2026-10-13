@@ -1,0 +1,78 @@
+@model List<ApplicationUser>
+@{
+    ViewData["Title"] = "Manage Members";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo;
+            <a asp-controller="Admin" asp-action="Dashboard">Admin</a> &rsaquo;
+            <span class="text-white">Members</span>
+        </nav>
+        <h1 class="fw-bold">Member records</h1>
+        <p class="mb-0" style="color: rgba(255,255,255,.82);">View, promote and delete member accounts.</p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <partial name="_AdminNav" />
+            </div>
+
+            <div class="col-lg-9">
+                <div class="lh-dash-card">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle lh-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Joined</th>
+                                    <th class="text-center">Enrolments</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var u in Model)
+                                {
+                                    <tr>
+                                        <td>@u.Id</td>
+                                        <td>@u.FullName</td>
+                                        <td>@u.Email</td>
+                                        <td>
+                                            <span class="lh-badge @(u.Role == "Admin" ? "lh-badge-featured" : "lh-badge-type")">@u.Role</span>
+                                        </td>
+                                        <td>@u.CreatedAt.ToString("dd MMM yyyy")</td>
+                                        <td class="text-center">@u.Enrollments.Count</td>
+                                        <td class="text-end text-nowrap">
+                                            <form asp-controller="Admin" asp-action="ToggleRole" asp-route-id="@u.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-warning"
+                                                        title="@(u.Role == "Admin" ? "Demote to member" : "Promote to admin")">
+                                                    <i class="ti ti-refresh"></i>
+                                                    <span class="visually-hidden">Change role</span>
+                                                </button>
+                                            </form>
+                                            <form asp-controller="Admin" asp-action="DeleteMember" asp-route-id="@u.Id" method="post" class="d-inline"
+                                                  data-lh-confirm="Delete @u.FullName? Their reviews and enrolments will also be removed.">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete member">
+                                                    <i class="ti ti-trash"></i><span class="visually-hidden">Delete</span>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

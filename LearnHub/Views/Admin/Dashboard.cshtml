@@ -1,0 +1,142 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo; <span class="text-white">Admin Panel</span>
+        </nav>
+        <h1 class="fw-bold">Administrator dashboard</h1>
+        <p class="mb-0" style="color: rgba(255,255,255,.82);">Manage website content and database records.</p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <partial name="_AdminNav" />
+            </div>
+
+            <div class="col-lg-9">
+                <!-- ===== KPI CARDS ===== -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-xl-3">
+                        <div class="lh-dash-card text-center">
+                            <i class="ti ti-playlist fs-3 text-primary"></i>
+                            <div class="lh-stat-num">@Model.TotalResources</div>
+                            <div class="lh-stat-label">Resources</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="lh-dash-card text-center">
+                            <i class="ti ti-users fs-3" style="color: var(--accent);"></i>
+                            <div class="lh-stat-num">@Model.TotalMembers</div>
+                            <div class="lh-stat-label">Members</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="lh-dash-card text-center">
+                            <i class="ti ti-checklist fs-3" style="color: var(--gold);"></i>
+                            <div class="lh-stat-num">@Model.TotalEnrollments</div>
+                            <div class="lh-stat-label">Enrolments</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="lh-dash-card text-center">
+                            <i class="ti ti-mail-exclamation fs-3 text-danger"></i>
+                            <div class="lh-stat-num">@Model.UnreadMessages</div>
+                            <div class="lh-stat-label">Unread messages</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- ===== TOP RESOURCES ===== -->
+                    <div class="col-lg-7">
+                        <section class="lh-dash-card" aria-labelledby="topRes">
+                            <h2 class="h5" id="topRes">Most popular resources</h2>
+                            @if (!Model.TopResources.Any())
+                            {
+                                <p class="text-muted mb-0">No resources yet.</p>
+                            }
+                            else
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th class="text-center">Enrolments</th>
+                                                <th class="text-center">Reviews</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var r in Model.TopResources)
+                                            {
+                                                <tr>
+                                                    <td>@r.Title</td>
+                                                    <td class="text-center">@r.Enrollments.Count</td>
+                                                    <td class="text-center">@r.Reviews.Count</td>
+                                                    <td class="text-end">
+                                                        <a asp-controller="Admin" asp-action="EditResource" asp-route-id="@r.Id"
+                                                           class="btn btn-sm btn-outline-primary" title="Edit">
+                                                            <i class="ti ti-pencil"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </section>
+                    </div>
+
+                    <!-- ===== RECENT MESSAGES ===== -->
+                    <div class="col-lg-5">
+                        <section class="lh-dash-card" aria-labelledby="recentMsg">
+                            <h2 class="h5" id="recentMsg">Latest messages</h2>
+                            @if (!Model.RecentMessages.Any())
+                            {
+                                <p class="text-muted mb-0">No messages received yet.</p>
+                            }
+                            else
+                            {
+                                @foreach (var m in Model.RecentMessages)
+                                {
+                                    <div class="pb-2 mb-2 border-bottom">
+                                        <div class="d-flex justify-content-between">
+                                            <strong class="@(m.IsRead ? "" : "fw-bold")">@m.Name</strong>
+                                            <small class="text-muted">@m.CreatedAt.ToString("dd MMM")</small>
+                                        </div>
+                                        <small class="d-block text-muted">@m.Subject</small>
+                                    </div>
+                                }
+                                <a asp-controller="Admin" asp-action="Messages" class="btn btn-sm btn-lh-outline mt-2">
+                                    View all messages <i class="ti ti-arrow-right ms-1"></i>
+                                </a>
+                            }
+                        </section>
+                    </div>
+                </div>
+
+                <!-- ===== QUICK ACTIONS ===== -->
+                <div class="lh-dash-card mt-4">
+                    <h2 class="h5">Quick actions</h2>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-controller="Admin" asp-action="CreateResource" class="btn btn-lh-accent">
+                            <i class="ti ti-plus me-1"></i>New resource
+                        </a>
+                        <a asp-controller="Admin" asp-action="Resources" class="btn btn-lh-outline">Manage resources</a>
+                        <a asp-controller="Admin" asp-action="Members" class="btn btn-lh-outline">Manage members</a>
+                        <a asp-controller="Admin" asp-action="Reviews" class="btn btn-lh-outline">Moderate reviews</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

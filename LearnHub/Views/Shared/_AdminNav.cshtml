@@ -1,0 +1,21 @@
+@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<nav class="lh-admin-nav nav flex-column lh-dash-card" aria-label="Admin sections">
+    <a class="nav-link @(action == "Dashboard" ? "active" : "")" asp-controller="Admin" asp-action="Dashboard">
+        <i class="ti ti-gauge"></i> Dashboard
+    </a>
+    <a class="nav-link @(action == "Resources" || action == "CreateResource" || action == "EditResource" ? "active" : "")"
+       asp-controller="Admin" asp-action="Resources">
+        <i class="ti ti-playlist"></i> Learning resources
+    </a>
+    <a class="nav-link @(action == "Members" ? "active" : "")" asp-controller="Admin" asp-action="Members">
+        <i class="ti ti-users"></i> Members
+    </a>
+    <a class="nav-link @(action == "Reviews" ? "active" : "")" asp-controller="Admin" asp-action="Reviews">
+        <i class="ti ti-star"></i> Reviews
+    </a>
+    <a class="nav-link @(action == "Messages" ? "active" : "")" asp-controller="Admin" asp-action="Messages">
+        <i class="ti ti-mail"></i> Messages
+    </a>
+</nav>

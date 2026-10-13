@@ -1,0 +1,69 @@
+@model ProfileInputViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo;
+            <a asp-controller="Member" asp-action="Dashboard">Dashboard</a> &rsaquo;
+            <span class="text-white">Profile</span>
+        </nav>
+        <h1 class="fw-bold">Edit my profile</h1>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="lh-form-card">
+                    <form asp-controller="Member" asp-action="Profile" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger lh-alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="lh-form-label">Full name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control lh-form-control" minlength="2" maxlength="80" required />
+                            <span asp-validation-for="FullName"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Organisation" class="lh-form-label">Institution / company</label>
+                            <input asp-for="Organisation" class="form-control lh-form-control" maxlength="120" />
+                            <span asp-validation-for="Organisation"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="lh-form-label">About you</label>
+                            <textarea asp-for="Bio" class="form-control lh-form-control" rows="3" maxlength="500"
+                                      placeholder="Tell other learners a little about yourself…"></textarea>
+                            <span asp-validation-for="Bio"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Picture" class="lh-form-label">Profile picture <small class="text-muted">(optional)</small></label>
+                            <input asp-for="Picture" class="form-control lh-form-control" type="file" accept="image/*" />
+                            <span asp-validation-for="Picture"></span>
+                            <small class="text-muted">JPG, PNG or GIF up to 3 MB. Saved to /images/avatars/{Model.Id}.jpg</small>
+                        </div>
+
+                        <div class="lh-avatar-preview mt-3">
+                            @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                            {
+                                <img src="@Model.AvatarUrl" alt="" class="lh-avatar-preview-img" width="80" height="80" />
+                            }
+                            <div class="lh-avatar-preview-placeholder text-muted">
+                                <i class="ti ti-camera"></i>
+                                <span class="lh-avatar-preview-text">No picture yet</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-lh-primary"><i class="ti ti-check me-1"></i>Save changes</button>
+                        <a asp-controller="Member" asp-action="Dashboard" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,78 @@
+@model List<ContactMessage>
+@{
+    ViewData["Title"] = "Contact Messages";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo;
+            <a asp-controller="Admin" asp-action="Dashboard">Admin</a> &rsaquo;
+            <span class="text-white">Messages</span>
+        </nav>
+        <h1 class="fw-bold">Contact messages</h1>
+        <p class="mb-0" style="color: rgba(255,255,255,.82);">Messages submitted through the public contact form.</p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <partial name="_AdminNav" />
+            </div>
+
+            <div class="col-lg-9">
+                @if (!Model.Any())
+                {
+                    <div class="lh-dash-card text-center py-5">
+                        <i class="ti ti-mail-off display-4 text-muted"></i>
+                        <p class="text-muted mt-2 mb-0">No messages yet.</p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var m in Model)
+                    {
+                        <article class="lh-dash-card mb-3 @(m.IsRead ? "" : "border-start border-warning border-4")">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                <div>
+                                    <h2 class="h6 mb-1">
+                                        @m.Subject
+                                        @if (!m.IsRead)
+                                        {
+                                            <span class="lh-badge lh-badge-featured ms-1">New</span>
+                                        }
+                                    </h2>
+                                    <small class="text-muted">
+                                        From <strong>@m.Name</strong> &lt;@m.Email&gt; · @m.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                                    </small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <form asp-controller="Admin" asp-action="ToggleMessage" asp-route-id="@m.Id" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi @(m.IsRead ? "bi-envelope" : "bi-envelope-open") me-1"></i>
+                                            Mark as @(m.IsRead ? "unread" : "read")
+                                        </button>
+                                    </form>
+                                    <form asp-controller="Admin" asp-action="DeleteMessage" asp-route-id="@m.Id" method="post"
+                                          data-lh-confirm="Delete this message?">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="ti ti-trash"></i><span class="visually-hidden">Delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <p class="mb-2 mt-3" style="white-space: pre-line;">@m.Message</p>
+                            <a href="mailto:@m.Email?subject=Re: @m.Subject" class="btn btn-sm btn-lh-outline">
+                                <i class="ti ti-arrow-back-up me-1"></i>Reply by email
+                            </a>
+                        </article>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>

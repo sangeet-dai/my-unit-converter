@@ -1,0 +1,289 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+@* Internal stylesheet for page-specific rules (external styles live in site.css) *@
+<style>
+    .lh-hero-head { max-width: 30ch; }
+    .lh-type-list li { padding: .5rem 0; border-bottom: 1px solid var(--line); }
+    .lh-type-list li:last-child { border-bottom: none; }
+    .lh-type-list .lh-type-name { color: var(--ink); font-weight: 600; display: block; }
+    .lh-type-list .lh-type-desc { color: var(--ink-2); font-size: .88rem; }
+</style>
+
+<section class="lh-hero">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-7">
+                <span class="lh-kicker">Digital learning resources</span>
+                <h1 class="lh-hero-head mt-2">Course material, labs and practice papers in one library.</h1>
+                <p class="lh-lead mt-3 mb-4">
+                    LearnHub holds the study resources for our computing modules — recorded lectures,
+                    written guides, virtual labs, simulations and self-assessment quizzes. Browse the
+                    catalogue freely, or create an account to enrol and keep a record of your progress.
+                </p>
+
+                <form asp-controller="Resources" asp-action="Index" method="get" class="lh-searchbar mb-3" role="search">
+                    <i class="ti ti-search" aria-hidden="true"></i>
+                    <label for="heroSearch" class="visually-hidden">Search the catalogue</label>
+                    <input id="heroSearch" type="search" name="query" placeholder="Search by title, topic or keyword" />
+                    <button type="submit" class="btn btn-lh-accent">Search</button>
+                </form>
+
+                <p class="text-muted mb-2" style="max-width: 48ch; font-size: .9rem;">
+                    <a asp-controller="Resources" asp-action="Index">Browse the full catalogue</a>
+                    or <a asp-controller="Account" asp-action="Register">create an account</a> to enrol in resources.
+                </p>
+
+                @if (Model.FeaturedResources.Any())
+                {
+                    <span class="lh-filter-label d-block mb-2">Popular now</span>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        @foreach (var r in Model.FeaturedResources.Take(3))
+                        {
+                            <a class="lh-chip" asp-controller="Resources" asp-action="Details" asp-route-id="@r.Id">
+                                <i class="ti ti-@((r.Category?.Name == "Programming") ? "code" : r.Category?.Name == "Data Science" ? "chart-bar" : r.Category?.Name == "Cloud & DevOps" ? "cloud" : r.Category?.Name == "Design & UX" ? "palette" : r.Category?.Name == "Study Skills" ? "school" : "code") me-1"></i>@r.Title
+                            </a>
+                        }
+                    </div>
+                }
+
+                <div class="row g-3 mt-1">
+                    <div class="col-6">
+                        <div class="lh-dash-card">
+                            <i class="ti ti-player-play lh-primary" style="font-size:1.3rem;"></i>
+                            <div class="mt-1" style="font-size:.85rem; color: var(--ink-2);"><strong>Video clips</strong> with captions</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="lh-dash-card">
+                            <i class="ti ti-device-mobile lh-primary" style="font-size:1.3rem;"></i>
+                            <div class="mt-1" style="font-size:.85rem; color: var(--ink-2);"><strong>Works on any device</strong>, fully responsive</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="col-lg-5">
+                <img src="~/images/hero-illustration.svg" alt="Illustration of the LearnHub library: course cards, progress tracking and code" class="w-100 mb-4" style="border-radius: 4px;" />
+                <div class="lh-note">
+                    <h2>What you will find</h2>
+                    <ul class="lh-note-list lh-type-list mb-3">
+                        <li>
+                            <span>
+                                <span class="lh-type-name">Videos</span>
+                                <span class="lh-type-desc">Recorded lectures and worked examples.</span>
+                            </span>
+                        </li>
+                        <li>
+                            <span>
+                                <span class="lh-type-name">Articles</span>
+                                <span class="lh-type-desc">Written guides with references and further reading.</span>
+                            </span>
+                        </li>
+                        <li>
+                            <span>
+                                <span class="lh-type-name">Virtual labs and simulations</span>
+                                <span class="lh-type-desc">Practise in a sandbox before you touch real systems.</span>
+                            </span>
+                        </li>
+                        <li>
+                            <span>
+                                <span class="lh-type-name">Self-assessment quizzes</span>
+                                <span class="lh-type-desc">Check your understanding with explained answers.</span>
+                            </span>
+                        </li>
+                    </ul>
+                    @if (Model.LatestResources.Any())
+                    {
+                        <p class="mb-0 lh-footer-text">
+                            Latest addition:
+                            <a asp-controller="Resources" asp-action="Details" asp-route-id="@Model.LatestResources.First().Id">
+                                @Model.LatestResources.First().Title
+                            </a>
+                        </p>
+                    }
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<section class="lh-stats">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-6 col-lg-3">
+                <div class="lh-stat-card">
+                    <div class="lh-stat-num">@Model.TotalResources</div>
+                    <div class="lh-stat-label">Resources in the library</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lh-stat-card">
+                    <div class="lh-stat-num">@Model.Categories.Count</div>
+                    <div class="lh-stat-label">Subject areas</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lh-stat-card">
+                    <div class="lh-stat-num">@Model.TotalMembers</div>
+                    <div class="lh-stat-label">Registered members</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lh-stat-card">
+                    <div class="lh-stat-num">@Model.TotalReviews</div>
+                    <div class="lh-stat-label">Member reviews</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row align-items-end mb-4 g-2">
+            <div class="col-md-8">
+                <span class="lh-kicker">Subjects</span>
+                <h2 class="lh-section-title">Browse the library by subject</h2>
+                <p class="lh-section-sub mb-0">Each subject collects the resources used across our modules, from first-year fundamentals to final-year topics.</p>
+            </div>
+        </div>
+        <div class="row g-3">
+            @foreach (var cat in Model.Categories)
+            {
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a class="lh-cat-tile" asp-controller="Resources" asp-action="Index" asp-route-categoryId="@cat.Id">
+                        <span class="lh-cat-icon"><i class="@cat.IconClass"></i></span>
+                        <strong class="d-block">@cat.Name</strong>
+                        <small>@cat.Resources.Count @(cat.Resources.Count == 1 ? "resource" : "resources")</small>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="lh-section lh-section-alt">
+    <div class="container">
+        <div class="row align-items-end mb-4 g-2">
+            <div class="col-md-8">
+                <span class="lh-kicker">Recommended</span>
+                <h2 class="lh-section-title">Selected by the teaching team</h2>
+                <p class="lh-section-sub mb-0">Resources flagged by staff as a good starting point for the topics they cover.</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a asp-controller="Resources" asp-action="Index" class="btn btn-lh-outline btn-sm">View every resource</a>
+            </div>
+        </div>
+        <div class="row g-4">
+            @foreach (var r in Model.FeaturedResources)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <partial name="_ResourceCard" model="r" />
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="lh-section">
+    <div class="container">
+        <span class="lh-kicker">How it works</span>
+        <h2 class="lh-section-title">Using the library</h2>
+        <div class="row g-4 mt-4">
+            <div class="col-md-4">
+                <div class="lh-step-num mb-3">1</div>
+                <h3 class="h6">Search or browse</h3>
+                <p class="text-muted mb-0" style="font-size: .93rem;">
+                    Filter the catalogue by subject, resource type and level. No account is needed to read
+                    a description or the reviews left by other students.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <div class="lh-step-num mb-3">2</div>
+                <h3 class="h6">Enrol in a resource</h3>
+                <p class="text-muted mb-0" style="font-size: .93rem;">
+                    Sign in and enrol to add a resource to your own list. You can leave a review once you
+                    have worked through the material.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <div class="lh-step-num mb-3">3</div>
+                <h3 class="h6">Record your progress</h3>
+                <p class="text-muted mb-0" style="font-size: .93rem;">
+                    Update the progress figure on your dashboard as you go, so you can see what is finished
+                    and what still needs attention.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lh-section lh-section-alt">
+    <div class="container">
+        <div class="row align-items-end mb-4 g-2">
+            <div class="col-md-8">
+                <span class="lh-kicker">Catalogue</span>
+                <h2 class="lh-section-title">Recently added</h2>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a asp-controller="Resources" asp-action="Index" asp-route-sort="newest" class="btn btn-lh-outline btn-sm">See what is new</a>
+            </div>
+        </div>
+        <div class="row g-4">
+            @foreach (var r in Model.LatestResources)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <partial name="_ResourceCard" model="r" />
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@if (Model.RecentReviews.Any())
+{
+    <section class="lh-section">
+        <div class="container">
+            <span class="lh-kicker">Feedback</span>
+            <h2 class="lh-section-title">Notes from other students</h2>
+            <div class="row g-4 mt-4">
+                @foreach (var rev in Model.RecentReviews)
+                {
+                    <div class="col-md-4">
+                        <figure class="lh-quote mb-0">
+                            <div class="lh-stars mb-2" aria-label="@rev.Rating out of 5">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi @(i <= rev.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                }
+                            </div>
+                            <blockquote class="mb-2">@rev.Comment</blockquote>
+                            <figcaption>
+                                <strong>@rev.User?.FullName</strong><br />
+                                <small class="text-muted">
+                                    on <a asp-controller="Resources" asp-action="Details" asp-route-id="@rev.ResourceId">@rev.Resource?.Title</a>
+                                </small>
+                            </figcaption>
+                        </figure>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<section class="lh-section pt-0">
+    <div class="container">
+        <div class="lh-note d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <img src="~/images/cta-emblem.svg" alt="" width="110" style="border-radius: 4px;" />
+            <div class="flex-grow-1" style="min-width: 260px;">
+                <h2 class="mb-1">Enrol in your first resource today</h2>
+                <p class="text-muted mb-0">Registration takes a minute. Track your progress on every enrolled resource, collect completed certificates on your dashboard and share reviews that help other students choose well.</p>
+            </div>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-lh-accent">Create an account</a>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,67 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo; <span class="text-white">Sign in</span>
+        </nav>
+        <h1 class="fw-bold">Welcome back</h1>
+        <p class="mb-0" style="color: rgba(255,255,255,.82);">Sign in to access your dashboard, enrolments and reviews.</p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="lh-form-card">
+                    <h2 class="h4 mb-4">Sign in to your account</h2>
+
+                    <form asp-controller="Account" asp-action="Login" method="post" id="loginForm" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger lh-alert" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="lh-form-label">Email address</label>
+                            <input asp-for="Email" class="form-control lh-form-control" type="email"
+                                   placeholder="you@example.com" autocomplete="email" required />
+                            <span asp-validation-for="Email"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="lh-form-label">Password</label>
+                            <input asp-for="Password" class="form-control lh-form-control" type="password"
+                                   autocomplete="current-password" required />
+                            <span asp-validation-for="Password"></span>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label">Remember me on this device</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-lh-accent w-100 btn-lg mb-3">
+                            <i class="ti ti-login me-1"></i>Sign in
+                        </button>
+
+                        <p class="text-center text-muted mb-0">
+                            New to LearnHub? <a asp-controller="Account" asp-action="Register">Create an account</a>
+                        </p>
+                    </form>
+
+                    <div class="lh-demo-box mt-4">
+                        <strong class="d-block mb-1"><i class="ti ti-info-circle me-1"></i>Demo accounts</strong>
+                        <ul class="mb-0 ps-3">
+                            <li>Member &mdash; <code>alice&#64;learnhub.test</code> / <code>Student123!</code></li>
+                            <li>Administrator &mdash; <code>admin&#64;learnhub.test</code> / <code>Admin123!</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

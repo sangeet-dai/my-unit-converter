@@ -1,0 +1,139 @@
+@model ResourceFormViewModel
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Resource" : "Insert Resource";
+    var types = new[] { "Video", "Article", "Self-Assessment Quiz", "Virtual Lab", "Simulation", "Interactive Object" };
+    var levels = new[] { "Beginner", "Intermediate", "Advanced" };
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo;
+            <a asp-controller="Admin" asp-action="Dashboard">Admin</a> &rsaquo;
+            <a asp-controller="Admin" asp-action="Resources">Resources</a> &rsaquo;
+            <span class="text-white">@(isEdit ? "Edit" : "Insert")</span>
+        </nav>
+        <h1 class="fw-bold">@(isEdit ? "Edit resource" : "Insert new resource")</h1>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <partial name="_AdminNav" />
+            </div>
+
+            <div class="col-lg-9">
+                <div class="lh-form-card">
+                    <form asp-controller="Admin" asp-action="@(isEdit ? "EditResource" : "CreateResource")"
+                          asp-route-id="@Model.Id" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger lh-alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="lh-form-label">Title <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control lh-form-control" minlength="5" maxlength="140" required />
+                            <span asp-validation-for="Title"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Summary" class="lh-form-label">Short summary <span class="text-danger">*</span></label>
+                            <input asp-for="Summary" class="form-control lh-form-control" minlength="10" maxlength="260" required />
+                            <span asp-validation-for="Summary"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="lh-form-label">Full description <span class="text-danger">*</span></label>
+                            <textarea asp-for="Description" class="form-control lh-form-control" rows="6"
+                                      minlength="30" maxlength="8000" required></textarea>
+                            <span asp-validation-for="Description"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Objectives" class="lh-form-label">Learning objectives <small class="text-muted">(one per line)</small></label>
+                            <textarea asp-for="Objectives" class="form-control lh-form-control" rows="4"></textarea>
+                            <span asp-validation-for="Objectives"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label asp-for="CategoryId" class="lh-form-label">Category <span class="text-danger">*</span></label>
+                                <select asp-for="CategoryId" asp-items="ViewBag.CategoryList" class="form-select lh-form-select" required>
+                                    <option value="">— Select —</option>
+                                </select>
+                                <span asp-validation-for="CategoryId"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="ResourceType" class="lh-form-label">Resource type <span class="text-danger">*</span></label>
+                                <select asp-for="ResourceType" class="form-select lh-form-select" required>
+                                    @foreach (var t in types)
+                                    {
+                                        <option value="@t" selected="@(Model.ResourceType == t)">@t</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ResourceType"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Level" class="lh-form-label">Level <span class="text-danger">*</span></label>
+                                <select asp-for="Level" class="form-select lh-form-select" required>
+                                    @foreach (var l in levels)
+                                    {
+                                        <option value="@l" selected="@(Model.Level == l)">@l</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Level"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-4">
+                                <label asp-for="DurationMinutes" class="lh-form-label">Duration (minutes) <span class="text-danger">*</span></label>
+                                <input asp-for="DurationMinutes" type="number" min="5" max="10000" class="form-control lh-form-control" required />
+                                <span asp-validation-for="DurationMinutes"></span>
+                            </div>
+                            <div class="col-md-8">
+                                <label asp-for="ThumbnailUrl" class="lh-form-label">Thumbnail image URL <small class="text-muted">(optional)</small></label>
+                                <input asp-for="ThumbnailUrl" class="form-control lh-form-control" placeholder="/images/resource-javascript.svg" maxlength="300" />
+                                <span asp-validation-for="ThumbnailUrl"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 mt-3">
+                            <label asp-for="ResourceUrl" class="lh-form-label">Resource link <small class="text-muted">(optional, must be a valid URL)</small></label>
+                            <input asp-for="ResourceUrl" class="form-control lh-form-control" type="url"
+                                   placeholder="https://…" maxlength="600" />
+                            <span asp-validation-for="ResourceUrl"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PictureUrl" class="lh-form-label">Resource picture (upload) <small class="text-muted">(optional)</small></label>
+                                <input asp-for="PictureUrl" class="form-control lh-form-control" type="file" accept="image/*" />
+                                <span asp-validation-for="PictureUrl"></span>
+                                <small class="text-muted">JPG, PNG or GIF, up to 3 MB. Saved as /images/resource/{Model.Id}.jpg</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CategoryLogoUrl" class="lh-form-label">Category logo (upload) <small class="text-muted">(optional)</small></label>
+                                <input asp-for="CategoryLogoUrl" class="form-control lh-form-control" type="file" accept="image/*" />
+                                <span asp-validation-for="CategoryLogoUrl"></span>
+                                <small class="text-muted">Optional category logo for this resource</small>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input asp-for="IsFeatured" class="form-check-input" />
+                            <label asp-for="IsFeatured" class="form-check-label">Feature this resource on the home page</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-lh-accent px-4">
+                            <i class="ti ti-device-floppy me-1"></i>@(isEdit ? "Save changes" : "Insert resource")
+                        </button>
+                        <a asp-controller="Admin" asp-action="Resources" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

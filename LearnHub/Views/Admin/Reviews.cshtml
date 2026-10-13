@@ -1,0 +1,66 @@
+@model List<Review>
+@{
+    ViewData["Title"] = "Moderate Reviews";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo;
+            <a asp-controller="Admin" asp-action="Dashboard">Admin</a> &rsaquo;
+            <span class="text-white">Reviews</span>
+        </nav>
+        <h1 class="fw-bold">Review moderation</h1>
+        <p class="mb-0" style="color: rgba(255,255,255,.82);">Inspect and remove learner reviews.</p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <partial name="_AdminNav" />
+            </div>
+
+            <div class="col-lg-9">
+                <div class="lh-dash-card">
+                    @if (!Model.Any())
+                    {
+                        <p class="text-muted mb-0">No reviews yet.</p>
+                    }
+                    else
+                    {
+                        @foreach (var r in Model)
+                        {
+                            <article class="pb-3 mb-3 border-bottom">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                            <strong>@r.User?.FullName</strong>
+                                            <span class="lh-stars" aria-label="@r.Rating out of 5 stars">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="bi @(i <= r.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                                }
+                                            </span>
+                                            <small class="text-muted">@r.CreatedAt.ToString("dd MMM yyyy HH:mm")</small>
+                                        </div>
+                                        <small class="text-muted">on <a asp-controller="Resources" asp-action="Details" asp-route-id="@r.ResourceId">@r.Resource?.Title</a></small>
+                                        <p class="mb-0 mt-1">@r.Comment</p>
+                                    </div>
+                                    <form asp-controller="Admin" asp-action="DeleteReview" asp-route-id="@r.Id" method="post" class="m-0"
+                                          data-lh-confirm="Remove this review?">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="ti ti-trash"></i><span class="visually-hidden">Remove review</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </article>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

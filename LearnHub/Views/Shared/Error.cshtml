@@ -1,0 +1,24 @@
+@model LearnHub.Models.ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7 text-center">
+                <i class="ti ti-alert-octagon display-1 text-danger"></i>
+                <h1 class="h2 mt-3">Something went wrong</h1>
+                <p class="text-muted">
+                    An unexpected error occurred while processing your request.
+                    Please try again, or return to the home page.
+                </p>
+                @if (Model?.ShowRequestId == true)
+                {
+                    <p class="text-muted"><small>Request ID: <code>@Model.RequestId</code></small></p>
+                }
+                <a asp-controller="Home" asp-action="Index" class="btn btn-lh-primary">Back to home</a>
+            </div>
+        </div>
+    </div>
+</section>

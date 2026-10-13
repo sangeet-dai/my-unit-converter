@@ -1,0 +1,202 @@
+@model MemberDashboardViewModel
+@{
+    ViewData["Title"] = "My Dashboard";
+    var total = Model.Enrollments.Count;
+    var avgProgress = total > 0 ? (int)Math.Round(Model.Enrollments.Average(e => e.ProgressPercent)) : 0;
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo; <span class="text-white">My Dashboard</span>
+        </nav>
+        <div class="d-flex align-items-center gap-3">
+            @if (!string.IsNullOrEmpty(Model.User.AvatarUrl))
+            {
+                <img src="@Model.User.AvatarUrl" alt="" class="lh-dash-avatar" width="44" height="44" />
+            }
+            <h1 class="fw-bold lh-dash-name">Hello, @Model.User.FullName</h1>
+        </div>
+        <p class="mb-0" style="color: rgba(255,255,255,.82);">Manage your enrolments, progress and reviews from one place.</p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <!-- ===== STAT CARDS ===== -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="lh-dash-card text-center">
+                    <div class="lh-stat-num">@total</div>
+                    <div class="lh-stat-label">Enrolled resources</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lh-dash-card text-center">
+                    <div class="lh-stat-num" style="color: var(--accent);">@Model.CompletedCount</div>
+                    <div class="lh-stat-label">Completed</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lh-dash-card text-center">
+                    <div class="lh-stat-num" style="color: var(--gold);">@Model.InProgressCount</div>
+                    <div class="lh-stat-label">In progress</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lh-dash-card text-center">
+                    <div class="lh-stat-num">@avgProgress%</div>
+                    <div class="lh-stat-label">Average progress</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- ===== ENROLMENTS ===== -->
+            <div class="col-lg-8">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <h2 class="h4 mb-0">My learning activities</h2>
+                    <a asp-controller="Resources" asp-action="Index" class="btn btn-sm btn-lh-outline">
+                        <i class="ti ti-plus me-1"></i>Find more resources
+                    </a>
+                </div>
+
+                @if (!Model.Enrollments.Any())
+                {
+                    <div class="lh-dash-card text-center py-5">
+                        <i class="ti ti-notebook display-4 text-muted"></i>
+                        <h3 class="h5 mt-3">No enrolments yet</h3>
+                        <p class="text-muted">Browse the catalogue and enrol in a resource to start learning.</p>
+                        <a asp-controller="Resources" asp-action="Index" class="btn btn-lh-accent">Browse resources</a>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var e in Model.Enrollments)
+                    {
+                        <article class="lh-dash-card mb-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex flex-wrap gap-2 mb-1">
+                                        <span class="lh-badge lh-badge-type">@e.Resource?.ResourceType</span>
+                                        <span class="lh-badge @(e.Status == EnrollmentStatus.Completed ? "lh-badge-level-beginner" : "lh-badge-level-intermediate")">
+                                            @(e.Status == EnrollmentStatus.Completed ? "Completed" : "In progress")
+                                        </span>
+                                    </div>
+                                    <h3 class="h5 mb-1">
+                                        <a asp-controller="Resources" asp-action="Details" asp-route-id="@e.ResourceId"
+                                           class="text-decoration-none">@e.Resource?.Title</a>
+                                    </h3>
+                                    <small class="text-muted">
+                                        Enrolled @e.EnrolledAt.ToString("dd MMM yyyy")
+                                        @if (e.CompletedAt != null)
+                                        {
+                                            <span> · Completed @e.CompletedAt.Value.ToString("dd MMM yyyy")</span>
+                                        }
+                                    </small>
+                                </div>
+
+                                <!-- Unenrol -->
+                                <form asp-controller="Member" asp-action="Unenroll" asp-route-id="@e.Id" method="post" class="m-0"
+                                      data-lh-confirm="Remove this enrolment and its progress?">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Unenrol">
+                                        <i class="ti ti-x"></i><span class="visually-hidden">Unenrol</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Progress -->
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted fw-semibold">Progress</small>
+                                    <small class="fw-semibold" id="progress-@e.Id-label">@e.ProgressPercent%</small>
+                                </div>
+                                <div class="lh-progress mb-3" role="progressbar"
+                                     aria-valuenow="@e.ProgressPercent" aria-valuemin="0" aria-valuemax="100"
+                                     aria-label="Progress for @e.Resource?.Title">
+                                    <div class="lh-progress-bar" style="width: @e.ProgressPercent%"></div>
+                                </div>
+
+                                @* UPDATE PROGRESS FORM *@
+                                <form asp-controller="Member" asp-action="UpdateProgress" asp-route-id="@e.Id" method="post"
+                                      class="d-flex flex-wrap align-items-center gap-2">
+                                    @Html.AntiForgeryToken()
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                data-lh-step-target="progress-@e.Id" data-lh-step="-10">−10%</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                data-lh-step-target="progress-@e.Id" data-lh-step="10">+10%</button>
+                                    </div>
+                                    <label for="progress-@e.Id" class="visually-hidden">Progress percentage</label>
+                                    <input type="number" id="progress-@e.Id" name="percent" min="0" max="100"
+                                           value="@e.ProgressPercent" class="form-control lh-form-control" style="width: 90px;" />
+                                    <button type="submit" class="btn btn-sm btn-lh-primary">
+                                        <i class="ti ti-refresh me-1"></i>Update progress
+                                    </button>
+                                    @if (e.ProgressPercent < 100)
+                                    {
+                                        <button type="submit" name="percent" value="100" class="btn btn-sm btn-lh-outline">
+                                            <i class="ti ti-checks me-1"></i>Mark completed
+                                        </button>
+                                    }
+                                </form>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+
+            <!-- ===== SIDEBAR: profile + reviews ===== -->
+            <aside class="col-lg-4">
+                <section class="lh-dash-card mb-4" aria-labelledby="profileHeading">
+                    <h2 class="h5" id="profileHeading">My profile</h2>
+                    <ul class="list-unstyled mb-3">
+                        <li class="lh-meta-item mb-2"><i class="ti ti-user"></i> @Model.User.FullName</li>
+                        <li class="lh-meta-item mb-2"><i class="ti ti-mail"></i> @Model.User.Email</li>
+                        <li class="lh-meta-item mb-2"><i class="ti ti-building"></i> @(string.IsNullOrEmpty(Model.User.Organisation) ? "—" : Model.User.Organisation)</li>
+                        <li class="lh-meta-item"><i class="ti ti-calendar"></i> Member since @Model.User.CreatedAt.ToString("MMM yyyy")</li>
+                    </ul>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Member" asp-action="Profile" class="btn btn-lh-outline">
+                            <i class="ti ti-pencil me-1"></i>Edit profile
+                        </a>
+                        <a asp-controller="Member" asp-action="ChangePassword" class="btn btn-outline-secondary">
+                            <i class="ti ti-key me-1"></i>Change password
+                        </a>
+                    </div>
+                </section>
+
+                <section class="lh-dash-card" aria-labelledby="reviewsHeading">
+                    <h2 class="h5" id="reviewsHeading">My reviews (@Model.MyReviews.Count)</h2>
+                    @if (!Model.MyReviews.Any())
+                    {
+                        <p class="text-muted mb-0">You have not reviewed any resource yet.</p>
+                    }
+                    else
+                    {
+                        @foreach (var rev in Model.MyReviews.Take(4))
+                        {
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="lh-stars mb-1" aria-label="@rev.Rating out of 5 stars">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi @(i <= rev.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                    }
+                                </div>
+                                <small class="d-block mb-1">@rev.Comment</small>
+                                <a asp-controller="Resources" asp-action="Details" asp-route-id="@rev.ResourceId" class="small">
+                                    @rev.Resource?.Title
+                                </a>
+                            </div>
+                        }
+                        @if (Model.MyReviews.Count > 4)
+                        {
+                            <small class="text-muted">…and @(Model.MyReviews.Count - 4) more.</small>
+                        }
+                    }
+                </section>
+            </aside>
+        </div>
+    </div>
+</section>

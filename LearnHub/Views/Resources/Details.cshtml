@@ -1,0 +1,282 @@
+@model LearnHub.Models.LearningResource
+@{
+    ViewData["Title"] = Model.Title;
+    var enrollment = ViewBag.MyEnrollment as LearnHub.Models.Enrollment;
+    var hasReviewed = (bool)ViewBag.HasReviewed;
+    var related = (List<LearningResource>)ViewBag.Related;
+    var levelClass = Model.Level switch
+    {
+        "Beginner" => "lh-badge-level-beginner",
+        "Intermediate" => "lh-badge-level-intermediate",
+        _ => "lh-badge-level-advanced"
+    };
+    var hours = Model.DurationMinutes >= 60
+        ? $"{Model.DurationMinutes / 60}h {Model.DurationMinutes % 60}m"
+        : $"{Model.DurationMinutes}m";
+    var objectives = (Model.Objectives ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries);
+    var categoryLogo = !string.IsNullOrEmpty(Model.CategoryLogoUrl) ? Model.CategoryLogoUrl : Model.Category?.LogoUrl;
+    var detailCover = !string.IsNullOrEmpty(Model.PictureUrl) ? Model.PictureUrl : Model.ThumbnailUrl;
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo;
+            <a asp-controller="Resources" asp-action="Index">Resources</a> &rsaquo;
+            <span class="text-white">@Model.Title</span>
+        </nav>
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="lh-badge lh-badge-type">@Model.ResourceType</span>
+                    <span class="lh-badge @levelClass">@Model.Level</span>
+                    <span class="lh-badge d-inline-flex align-items-center gap-1" style="background: rgba(255,255,255,.18); color:#fff;">@if(!string.IsNullOrEmpty(categoryLogo)){<img src="@categoryLogo" alt="" style="width:16px;height:16px;object-fit:cover;border-radius:50%;" />} @Model.Category?.Name</span>
+                </div>
+                <h1 class="fw-bold">@Model.Title</h1>
+                <p class="mb-2" style="color: rgba(255,255,255,.85); max-width: 720px;">@Model.Summary</p>
+                <p class="mb-0" style="color: rgba(255,255,255,.65); font-size: .86rem;">
+                    <i class="ti ti-clock me-1"></i>@hours
+                    <i class="ti ti-users ms-3 me-1"></i>@Model.Reviews.Count reviews
+                    <i class="ti ti-star-filled ms-3 me-1 text-warning"></i>@(Model.AverageRating > 0 ? Model.AverageRating.ToString("0.0") : "New") average
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="d-inline-block text-center" style="background:#fbfaf8; border-radius:8px; padding:18px 22px;">
+                    @if (!string.IsNullOrEmpty(categoryLogo))
+                    {
+                        <img src="@categoryLogo" alt="@Model.Category?.Name logo" style="width:96px;height:96px;border-radius:8px;display:block;margin:0 auto 10px;" />
+                    }
+                    else
+                    {
+                        <i class="ti ti-book" style="font-size:56px;color:#0e4c3c;display:block;margin-bottom:10px;"></i>
+                    }
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;color:#6b7280;text-transform:uppercase;">@Model.Category?.Name</div>
+                    <div style="font-size:.8rem;color:#a8843c;font-weight:600;margin-top:2px;">Official resource</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-4">
+            <!-- ===== MAIN COLUMN ===== -->
+            <div class="col-lg-8">
+                <article class="lh-detail-panel mb-4">
+                    @if (!string.IsNullOrEmpty(Model.MediaSlug))
+                    {
+                        <figure class="lh-media">
+                            <video controls preload="metadata" playsinline
+                                   poster="~/media/posters/@(Model.MediaSlug).jpg"
+                                   width="1280" height="720">
+                                <source src="~/media/@(Model.MediaSlug).webm" type="video/webm" />
+                                <source src="~/media/@(Model.MediaSlug).mp4" type="video/mp4" />
+                                <track kind="captions" src="~/media/captions/@(Model.MediaSlug).vtt"
+                                       srclang="en" label="English" default />
+                                Your browser does not support the video element.
+                                <a href="~/media/@(Model.MediaSlug).mp4">Download the clip instead</a>.
+                            </video>
+                            <figcaption>
+                                Introduction clip. Enrol in the resource to record your progress through the full material.
+                            </figcaption>
+                        </figure>
+                    }
+                    @if (!string.IsNullOrEmpty(detailCover))
+                    {
+                        <img src="@detailCover" alt="Cover image for @Model.Title"
+                             class="w-100 mb-4" style="border-radius: 3px; max-height: 320px; object-fit: cover;" />
+                    }
+                    <h2 class="h4">About this resource</h2>
+                    <p style="white-space: pre-line;">@Model.Description</p>
+
+                    @if (objectives.Any())
+                    {
+                        <h3 class="h5 mt-4"><i class="ti ti-target me-2 text-primary"></i>Learning objectives</h3>
+                        <ul class="lh-objectives">
+                            @foreach (var o in objectives)
+                            {
+                                <li>@o.Trim()</li>
+                            }
+                        </ul>
+                    }
+                </article>
+
+                <!-- ===== REVIEWS ===== -->
+                <section class="lh-detail-panel" id="reviews" aria-labelledby="reviewsHeading">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                        <h2 class="h4 mb-0" id="reviewsHeading">
+                            Learner reviews
+                            <span class="badge bg-primary rounded-pill ms-1">@Model.Reviews.Count</span>
+                        </h2>
+                        <div class="lh-stars" aria-label="Average rating @(Model.AverageRating) out of 5">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi @(i <= Math.Round(Model.AverageRating) ? "bi-star-fill" : "bi-star")"></i>
+                            }
+                            <span class="text-muted ms-1">@(Model.AverageRating > 0 ? Model.AverageRating.ToString("0.0") : "—")</span>
+                        </div>
+                    </div>
+
+                    @if (!Model.Reviews.Any())
+                    {
+                        <p class="text-muted">No reviews yet — be the first to share your thoughts!</p>
+                    }
+                    else
+                    {
+                        @foreach (var rev in Model.Reviews.OrderByDescending(r => r.CreatedAt))
+                        {
+                            <article class="lh-review">
+                                <div class="d-flex gap-3">
+                                    @if (!string.IsNullOrEmpty(rev.User?.AvatarUrl))
+                                {
+                                    <img src="@rev.User.AvatarUrl" alt="" class="lh-avatar" style="padding:0;object-fit:cover;" width="40" height="40" />
+                                }
+                                else
+                                {
+                                    <span class="lh-avatar" aria-hidden="true">@(rev.User?.FullName?.Length > 0 ? rev.User.FullName.Substring(0, 1).ToUpper() : "?")</span>
+                                }
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center">
+                                            <strong>@rev.User?.FullName</strong>
+                                            <small class="text-muted">@rev.CreatedAt.ToString("dd MMM yyyy")</small>
+                                        </div>
+                                        <div class="lh-stars my-1" aria-label="@rev.Rating out of 5 stars">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="bi @(i <= rev.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                            }
+                                        </div>
+                                        <p class="mb-1">@rev.Comment</p>
+                                        @if (User.Identity?.IsAuthenticated == true &&
+                                             (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == rev.UserId.ToString() || User.IsInRole("Admin")))
+                                        {
+                                            <form asp-action="DeleteReview" asp-route-id="@rev.Id" method="post"
+                                                  data-lh-confirm="Delete this review?">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0">
+                                                    <i class="ti ti-trash me-1"></i>Delete my review
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    }
+
+                    <!-- ===== REVIEW FORM (members only) ===== -->
+                    <hr class="my-4" />
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <div class="lh-demo-box text-center">
+                            <i class="ti ti-lock me-1"></i>
+                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "Resources", new { id = Model.Id })">Sign in</a>
+                            to enrol and write a review.
+                        </div>
+                    }
+                    else if (hasReviewed)
+                    {
+                        <div class="lh-demo-box text-center mb-0">
+                            <i class="ti ti-circle-check me-1"></i>You have already reviewed this resource. Thank you!
+                        </div>
+                    }
+                    else
+                    {
+                        <h3 class="h5">Write a review</h3>
+                        <form asp-action="SubmitReview" method="post" id="reviewForm" novalidate>
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="resourceId" value="@Model.Id" />
+                            <div class="mb-3">
+                                <label class="lh-form-label" for="rating">Your rating <span class="text-danger">*</span></label>
+                                <select id="rating" name="Rating" class="form-select lh-form-select" style="max-width: 180px;"
+                                        aria-describedby="ratingHelp" required>
+                                    @for (int i = 5; i >= 1; i--)
+                                    {
+                                        <option value="@i">@i star@(i > 1 ? "s" : "")</option>
+                                    }
+                                </select>
+                                <small id="ratingHelp" class="text-muted">5 = excellent, 1 = poor.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="lh-form-label" for="comment">Your review <span class="text-danger">*</span></label>
+                                <textarea id="comment" name="Comment" class="form-control lh-form-control" rows="3"
+                                          minlength="5" maxlength="800" required
+                                          placeholder="What did you like? How did it help your learning?"></textarea>
+                                <span data-valmsg-for="Comment" data-valmsg-replace="true"></span>
+                            </div>
+                            <button type="submit" class="btn btn-lh-primary"><i class="ti ti-send me-1"></i>Submit review</button>
+                        </form>
+                    }
+                </section>
+            </div>
+
+            <!-- ===== SIDEBAR ===== -->
+            <aside class="col-lg-4">
+                <div class="lh-detail-panel mb-4">
+                    <ul class="list-unstyled mb-4">
+                        <li class="lh-meta-item mb-2"><i class="ti ti-clock"></i> @hours estimated study time</li>
+                        <li class="lh-meta-item mb-2"><i class="ti ti-folder"></i> @Model.Category?.Name</li>
+                        <li class="lh-meta-item mb-2"><i class="ti ti-chart-bar"></i> @Model.Level level</li>
+                        <li class="lh-meta-item mb-2"><i class="ti ti-playlist"></i> @Model.ResourceType</li>
+                        <li class="lh-meta-item mb-2"><i class="ti ti-users"></i> @Model.Enrollments.Count learner(s) enrolled</li>
+                        <li class="lh-meta-item"><i class="ti ti-calendar"></i> Added @Model.CreatedAt.ToString("dd MMM yyyy")</li>
+                    </ul>
+
+                    @if (enrollment != null)
+                    {
+                        <div class="lh-demo-box mb-3">
+                            <strong class="d-block mb-2"><i class="ti ti-circle-check me-1"></i>You are enrolled</strong>
+                            <div class="lh-progress mb-1" role="progressbar" aria-valuenow="@enrollment.ProgressPercent" aria-valuemin="0" aria-valuemax="100">
+                                <div class="lh-progress-bar" style="width: @enrollment.ProgressPercent%"></div>
+                            </div>
+                            <small class="text-muted">@enrollment.ProgressPercent% complete · <a asp-controller="Member" asp-action="Dashboard">update in dashboard</a></small>
+                        </div>
+                        <a asp-controller="Member" asp-action="Dashboard" class="btn btn-lh-outline w-100">Go to my dashboard</a>
+                    }
+                    else if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-controller="Member" asp-action="Enroll" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="resourceId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-lh-accent w-100 btn-lg">
+                                <i class="ti ti-player-play me-1"></i>Enrol in this resource
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "Resources", new { id = Model.Id })"
+                           class="btn btn-lh-accent w-100 btn-lg"><i class="ti ti-login me-1"></i>Sign in to enrol</a>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ResourceUrl))
+                    {
+                        <a href="@Model.ResourceUrl" class="btn btn-link w-100 mt-2" target="_blank" rel="noopener">
+                            Open the learning material <i class="ti ti-external-link ms-1"></i>
+                        </a>
+                    }
+                </div>
+
+                @if (related.Any())
+                {
+                    <section class="lh-detail-panel" aria-labelledby="relatedHeading">
+                        <h2 class="h5" id="relatedHeading">Related resources</h2>
+                        @foreach (var rel in related)
+                        {
+                            <a asp-action="Details" asp-route-id="@rel.Id"
+                               class="d-block text-decoration-none lh-meta-item mb-3 p-2 rounded"
+                               style="color: var(--lh-ink);">
+                                <i class="ti ti-book"></i>
+                                <span>
+                                    <strong class="d-block" style="color: var(--lh-ink);">@rel.Title</strong>
+                                    <small class="text-muted">@rel.ResourceType · @rel.DurationMinutes min</small>
+                                </span>
+                            </a>
+                        }
+                    </section>
+                }
+            </aside>
+        </div>
+    </div>
+</section>

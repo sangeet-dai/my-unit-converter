@@ -1,0 +1,112 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create account";
+}
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo;
+            <a asp-controller="Account" asp-action="Login">Sign in</a> &rsaquo;
+            <span class="text-white">Register</span>
+        </nav>
+        <h1 class="fw-bold">Create your free account</h1>
+        <p class="mb-0" style="color: rgba(255,255,255,.82);">Join LearnHub to enrol in resources, track progress and write reviews.</p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="lh-form-card">
+                    <h2 class="h4 mb-1">Registration</h2>
+                    <p class="text-muted mb-4">All fields marked <span class="text-danger">*</span> are required.</p>
+
+                    <form asp-controller="Account" asp-action="Register" method="post" id="registerForm" novalidate>
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger lh-alert" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="lh-form-label">Full name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control lh-form-control" placeholder="e.g. Alex Wong"
+                                   autocomplete="name" minlength="2" maxlength="80" required />
+                            <span asp-validation-for="FullName"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="lh-form-label">Email address <span class="text-danger">*</span></label>
+                            <input asp-for="Email" class="form-control lh-form-control" type="email"
+                                   placeholder="you@example.com" autocomplete="email" required />
+                            <span asp-validation-for="Email"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Organisation" class="lh-form-label">Institution / company <small class="text-muted">(optional)</small></label>
+                            <input asp-for="Organisation" class="form-control lh-form-control" placeholder="e.g. Asia Pacific University" maxlength="120" />
+                            <span asp-validation-for="Organisation"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label asp-for="Password" class="lh-form-label">Password <span class="text-danger">*</span></label>
+                                <input asp-for="Password" class="form-control lh-form-control" type="password"
+                                       autocomplete="new-password" minlength="8" maxlength="100"
+                                       pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+"
+                                       title="At least 8 characters with one uppercase letter, one lowercase letter and one digit."
+                                       aria-describedby="pwHelp" required />
+                                <span asp-validation-for="Password"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label asp-for="ConfirmPassword" class="lh-form-label">Confirm password <span class="text-danger">*</span></label>
+                                <input asp-for="ConfirmPassword" class="form-control lh-form-control" type="password"
+                                       autocomplete="new-password" required />
+                                <span asp-validation-for="ConfirmPassword"></span>
+                            </div>
+                        </div>
+                        <small id="pwHelp" class="text-muted d-block mt-2">
+                            Minimum 8 characters, including an uppercase letter, a lowercase letter and a digit.
+                        </small>
+
+                        <div class="form-check my-3">
+                            <input asp-for="AcceptTerms" class="form-check-input" id="acceptTerms" />
+                            <label asp-for="AcceptTerms" class="form-check-label">
+                                I accept the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms of use</a> and privacy policy.
+                            </label>
+                            <span asp-validation-for="AcceptTerms"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-lh-accent w-100 btn-lg mb-3">
+                            <i class="ti ti-user-plus me-1"></i>Create my account
+                        </button>
+
+                        <p class="text-center text-muted mb-0">
+                            Already registered? <a asp-controller="Account" asp-action="Login">Sign in here</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Terms modal (Bootstrap interactive element) -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 4px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Terms of use</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>By registering with LearnHub you agree to use the platform for learning purposes, respect
+                   other members when writing reviews, and keep your account credentials secure.</p>
+                <p class="mb-0">This site is a student project built for the CT050-3-2 Web Applications course.
+                   All demo data is stored locally and can be removed at any time.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-lh-primary" data-bs-dismiss="modal">Got it</button>
+            </div>
+        </div>
+    </div>
+</div>

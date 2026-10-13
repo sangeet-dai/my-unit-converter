@@ -1,0 +1,149 @@
+@model CatalogFilterViewModel
+@{
+    ViewData["Title"] = "Resource Catalogue";
+    var types = new[] { "Video", "Article", "Self-Assessment Quiz", "Virtual Lab", "Simulation", "Interactive Object" };
+    var levels = new[] { "Beginner", "Intermediate", "Advanced" };
+}
+
+@* INTERNAL CSS — catalogue-specific styles *@
+<style>
+    .lh-chip.selected { font-weight: 600; }
+    .lh-filter-panel .lh-filter-label:not(:first-child) { margin-top: 1.1rem; }
+</style>
+
+<header class="lh-page-header">
+    <div class="container">
+        <nav class="lh-breadcrumb mb-1" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a> &rsaquo; <span class="text-white">Resources</span>
+        </nav>
+        <h1 class="fw-bold">Resource catalogue</h1>
+        <p class="mb-0" style="color: rgba(255,255,255,.82); max-width: 640px;">
+            Search and filter @Model.TotalCount digital learning resources by category, type and level.
+        </p>
+    </div>
+</header>
+
+<section class="lh-section">
+    <div class="container">
+        <div class="row g-4">
+            <!-- ===== FILTER SIDEBAR ===== -->
+            <div class="col-lg-3">
+                <form asp-controller="Resources" asp-action="Index" method="get" class="lh-filter-panel">
+                    <h2 class="h6 text-uppercase lh-filter-label">Search</h2>
+                    <label for="fQuery" class="visually-hidden">Search resources</label>
+                    <input id="fQuery" class="form-control lh-form-control mb-3" type="search" name="query" value="@Model.Query" placeholder="Keyword…" />
+
+                    <h2 class="h6 text-uppercase lh-filter-label">Category</h2>
+                    <select id="fCat" class="form-select lh-form-select mb-3" name="categoryId"
+                            onchange="this.form.requestSubmit()">
+                        <option value="">All categories</option>
+                        @foreach (var c in Model.Categories)
+                        {
+                            <option value="@c.Id" selected="@(Model.CategoryId == c.Id)">@c.Name</option>
+                        }
+                    </select>
+
+                    <h2 class="h6 text-uppercase lh-filter-label">Resource type</h2>
+                    <select id="fType" class="form-select lh-form-select mb-3" name="resourceType"
+                            onchange="this.form.requestSubmit()">
+                        <option value="">All types</option>
+                        @foreach (var t in types)
+                        {
+                            <option value="@t" selected="@(Model.ResourceType == t)">@t</option>
+                        }
+                    </select>
+
+                    <h2 class="h6 text-uppercase lh-filter-label">Level</h2>
+                    <select id="fLevel" class="form-select lh-form-select mb-3" name="level"
+                            onchange="this.form.requestSubmit()">
+                        <option value="">All levels</option>
+                        @foreach (var l in levels)
+                        {
+                            <option value="@l" selected="@(Model.Level == l)">@l</option>
+                        }
+                    </select>
+
+                    <h2 class="h6 text-uppercase lh-filter-label">Sort by</h2>
+                    <select id="fSort" class="form-select lh-form-select mb-3" name="sort"
+                            onchange="this.form.requestSubmit()">
+                        <option value="newest" selected="@(Model.Sort == "newest" || Model.Sort == null)">Newest first</option>
+                        <option value="rating" selected="@(Model.Sort == "rating")">Highest rated</option>
+                        <option value="duration" selected="@(Model.Sort == "duration")">Shortest first</option>
+                    </select>
+
+                    <input type="hidden" name="page" value="1" />
+                    <button type="submit" class="btn btn-lh-primary w-100"><i class="ti ti-filter me-1"></i>Apply filters</button>
+                    <a asp-action="Index" class="btn btn-link w-100 mt-2 text-decoration-none">Reset</a>
+                </form>
+            </div>
+
+            <!-- ===== RESULTS ===== -->
+            <div class="col-lg-9">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <p class="mb-0 text-muted">
+                        Showing <strong>@Model.Items.Count</strong> of <strong>@Model.TotalCount</strong> resources
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="lh-chip @(Model.CategoryId == null ? "selected" : "")" asp-action="Index">All</a>
+                        @foreach (var c in Model.Categories.Take(4))
+                        {
+                            <a class="lh-chip @(Model.CategoryId == c.Id ? "selected" : "")"
+                               asp-action="Index" asp-route-categoryId="@c.Id">@c.Name</a>
+                        }
+                    </div>
+                </div>
+
+                @if (!Model.Items.Any())
+                {
+                    <div class="lh-detail-panel text-center py-5">
+                        <img src="~/images/empty-search.svg" alt="" width="220" class="mb-3" />
+                        <h3 class="h5 mt-2">No resources found</h3>
+                        <p class="text-muted">Try different keywords or reset your filters.</p>
+                        <a asp-action="Index" class="btn btn-lh-primary">Reset filters</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-4">
+                        @foreach (var r in Model.Items)
+                        {
+                            <div class="col-md-6 col-xl-4">
+                                <partial name="_ResourceCard" model="r" />
+                            </div>
+                        }
+                    </div>
+
+                    @* Pagination *@
+                    @if (Model.TotalPages > 1)
+                    {
+                        <nav aria-label="Catalogue pagination" class="mt-4">
+                            <ul class="pagination justify-content-center flex-wrap mb-0">
+                                <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                    <a class="page-link lh-chip rounded px-3 py-2" asp-action="Index"
+                                       asp-route-query="@Model.Query" asp-route-categoryId="@Model.CategoryId"
+                                       asp-route-resourceType="@Model.ResourceType" asp-route-level="@Model.Level"
+                                       asp-route-sort="@Model.Sort" asp-route-page="@(Model.Page - 1)">‹ Prev</a>
+                                </li>
+                                @for (int p = 1; p <= Model.TotalPages; p++)
+                                {
+                                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                                        <a class="page-link lh-chip rounded px-3 py-2 @(p == Model.Page ? "selected" : "")" asp-action="Index"
+                                           asp-route-query="@Model.Query" asp-route-categoryId="@Model.CategoryId"
+                                           asp-route-resourceType="@Model.ResourceType" asp-route-level="@Model.Level"
+                                           asp-route-sort="@Model.Sort" asp-route-page="@p">@p</a>
+                                    </li>
+                                }
+                                <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                    <a class="page-link lh-chip rounded px-3 py-2" asp-action="Index"
+                                       asp-route-query="@Model.Query" asp-route-categoryId="@Model.CategoryId"
+                                       asp-route-resourceType="@Model.ResourceType" asp-route-level="@Model.Level"
+                                       asp-route-sort="@Model.Sort" asp-route-page="@(Model.Page + 1)">Next ›</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
